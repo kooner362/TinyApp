@@ -23,6 +23,11 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+});
+
 app.get("/urls/", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
