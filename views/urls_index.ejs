@@ -11,13 +11,16 @@
 <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
     <h1>TinyApp</h1>
-    <a href="#">Create new TinyURL</a>
+    <a href="/urls/new/">Create new TinyURL</a>
     <h2>My URLs</h2>
     <ul>
       <% Object.keys(urls).forEach(function(shortURL){ %>
-          <li> <b><%= shortURL %></b>: <%= urls[shortURL] %> </li>
+          <li> <b><%= shortURL %></b>: <%= urls[shortURL] %>
+            <form method="POST"  action="/urls/<%=shortURL%>/delete" >
+              <button type='submit'>DELETE</button>
+            </form>
+          </li>
       <% }); %>
-
     </ul>
 </body>
 </html>
