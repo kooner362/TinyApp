@@ -28,6 +28,11 @@ app.get("/urls/", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.post("/urls", (req, res) => {
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+});
+
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
@@ -37,6 +42,34 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
+function generateRandomString() {
+  var randInt = Math.floor((Math.random() * 99) + 1);
+  var shortURL = '';
+
+  for (let i = 0; i < 6; i++) {
+    //adds a random lowercase letter
+    if (randInt < 30) {
+      let randIntLetter = Math.floor(Math.random() * 26);
+      let randLetter = String.fromCharCode(97 + randIntLetter);
+      shortURL += randLetter;
+      randInt = Math.floor((Math.random() * 99) + 1);
+    }
+    else if (randInt >= 30 && randInt < 60) {
+      //adds a number between 0 and 9
+      let randNum = Math.floor(Math.random() * 10);
+      shortURL += randNum;
+      randInt = Math.floor((Math.random() * 99) + 1);
+
+    } else {
+      //adds a random uppercase letter
+      let randIntLetter = Math.floor(Math.random() * 26);
+      let randLetter = String.fromCharCode(97 + randIntLetter);
+      shortURL += randLetter.toUpperCase();
+      randInt = Math.floor((Math.random() * 99) + 1);
+    }
+  }
+  return shortURL;
+}
 
 
 app.listen(PORT, () => {
