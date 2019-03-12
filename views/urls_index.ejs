@@ -15,9 +15,11 @@
     <h2>My URLs</h2>
     <ul>
       <% Object.keys(urls).forEach(function(shortURL){ %>
-          <li> <b><%= shortURL %></b>: <%= urls[shortURL] %>
+          <li>
+            <b><%= shortURL %></b>: <%= urls[shortURL] %>
+            <a href="/urls/<%= shortURL %>">EDIT</a>
             <form method="POST"  action="/urls/<%=shortURL%>/delete" >
-              <button type='submit'>DELETE</button>
+              <button class="btn btn-primary" type='submit'>DELETE</button>
             </form>
           </li>
       <% }); %>
