@@ -50,15 +50,22 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/", (req, res) => {
-  let templateVars = { urls: urlDatabase , username: req.cookies["username"]};
+  let user_id = req.cookies["user_id"]
+  let templateVars = { urls: urlDatabase , user: users[user_id]};
   res.render("urls_index", templateVars);
 });
 
 app.post("/register", (req, res) => {
   let id = generateRandomString();
-  users[id] = {id: id, email: req.body.email, password: req.body.password};
-  res.cookie("user_id", id);
-  res.redirect('/urls');
+  let email = req.body.email;
+  let password = req.body.password;
+  if (email === '' || password === '') {
+    res.sendStatus(400);
+  } else {
+    users[id] = {id: id, email: email, password: password};
+    res.cookie("user_id", id);
+    res.redirect('/urls');
+  }
 });
 
 app.post("/urls", (req, res) => {
@@ -74,14 +81,16 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVars = {username: req.cookies["username"]};
+  let user_id = req.cookies["user_id"];
+  let templateVars = {user: users[user_id]};
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  let user_id = req.cookies["user_id"];
   let templateVars = {shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]};
+    user: users[user_id]};
   res.render("urls_show", templateVars);
 });
 
@@ -93,12 +102,14 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  let email = req.body.email;
+  let user_id = findIdFromEmail(email);
+  res.cookie("user", users[user_id]);
   res.redirect('/urls/');
 });
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect('/urls/');
 });
 
@@ -129,6 +140,14 @@ function generateRandomString() {
     }
   }
   return shortURL;
+}
+
+function findIdFromEmail(email) {
+  for (let id in users) {
+    if (users[id].email === email) {
+      return id;
+    }
+  }
 }
 
 
