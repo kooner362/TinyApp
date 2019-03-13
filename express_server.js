@@ -1,19 +1,32 @@
-var express = require("express");
-var app = express();
+const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
-var cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-var PORT = 8080;
+const PORT = 8080;
 
 app.set("view engine", "ejs");
 
-var urlDatabase = {
+const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+const users = {
+  "26bUxy": {
+    id: "26bUxy",
+    email: "bob@example.com",
+    password: "purple"
+  },
+ "8ByHde": {
+    id: "8ByHde",
+    email: "kevin@example.com",
+    password: "funk"
+  }
+}
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -41,9 +54,16 @@ app.get("/urls/", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+app.post("/register", (req, res) => {
+  let id = generateRandomString();
+  users[id] = {id: id, email: req.body.email, password: req.body.password};
+  res.cookie("user_id", id);
+  res.redirect('/urls');
+});
+
 app.post("/urls", (req, res) => {
-  var longURL = req.body.longURL;
-  var shortURL = generateRandomString();
+  let longURL = req.body.longURL;
+  let shortURL = generateRandomString();
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls/' + shortURL);
 });
@@ -66,8 +86,8 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  var longURL = req.body.longURL;
-  var shortURL = req.params.shortURL;
+  let longURL = req.body.longURL;
+  let shortURL = req.params.shortURL;
   urlDatabase[shortURL] = longURL;
   res.redirect('/urls/' + shortURL);
 });
@@ -83,8 +103,8 @@ app.post("/logout", (req, res) => {
 });
 
 function generateRandomString() {
-  var randInt = Math.floor((Math.random() * 99) + 1);
-  var shortURL = '';
+  let randInt = Math.floor((Math.random() * 99) + 1);
+  let shortURL = '';
 
   for (let i = 0; i < 6; i++) {
     //adds a random lowercase letter
