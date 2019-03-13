@@ -106,6 +106,7 @@ app.post("/login", (req, res) => {
   let email = req.body.email;
   let password =  req.body.password;
   let user_id = findIdFromEmail(email);
+  console.log(user_id)
   if (user_id && users[user_id].password === password) {
     res.cookie("user_id", user_id);
     res.redirect('/urls');

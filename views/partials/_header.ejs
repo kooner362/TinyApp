@@ -1,8 +1,12 @@
 <% if (user) { %>
+  <h1>TinyApp</h1>
+  <a href="/urls">URLS</a>|<a href="/urls/new">Create New TinyURL</a>
+  <br>
   Logged in as: <%= user.email %>!
   <form method="POST"  action="/logout">
     <button type="submit" class="btn btn-primary">Logout</button>
   </form>
 <%} else {%>
+  <h1>TinyApp</h1>
   <a href="/login">Login</a>|<a href="/register">Register</a>
 <%}%>
