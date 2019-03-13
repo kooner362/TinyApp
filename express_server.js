@@ -11,8 +11,8 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
 const users = {
@@ -39,7 +39,7 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL];
+  let longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
 
@@ -48,7 +48,6 @@ app.get("/urls/", (req, res) => {
   let user = users[user_id];
   let templateVars = { urls: urlDatabase , user: user};
   res.render("urls_index", templateVars);
-  res.redirect('/login');
 });
 
 app.get("/urls/new", (req, res) => {
@@ -70,7 +69,7 @@ app.get("/urls/:shortURL", (req, res) => {
   let user_id = req.cookies["user_id"];
   let user = users[user_id];
   let templateVars = {shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: user};
   res.render("urls_show", templateVars);
 });
@@ -78,7 +77,8 @@ app.get("/urls/:shortURL", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = req.params.shortURL;
-  urlDatabase[shortURL] = longURL;
+  let user_id = req.cookies["user_id"];
+  urlDatabase[shortURL] = {'longURL': longURL, userID: user_id};
   res.redirect('/urls/' + shortURL);
 });
 
@@ -114,8 +114,9 @@ app.post("/register", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
+  let user_id = req.cookies["user_id"];
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id};
   res.redirect('/urls/' + shortURL);
 });
 

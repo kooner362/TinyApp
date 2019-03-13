@@ -12,15 +12,15 @@
     <% include ./partials/_header %>
     <h2>My URLs</h2>
     <ul>
-      <% Object.keys(urls).forEach(function(shortURL){ %>
+      <% for (var key in urls) { %>
           <li>
-            <b><%= shortURL %></b>: <%= urls[shortURL] %>
-            <a href="/urls/<%= shortURL %>">EDIT</a>
-            <form method="POST"  action="/urls/<%=shortURL%>/delete" >
+            <b><%= key %></b>: <%= urls[key].longURL %>
+            <a href="/urls/<%= key %>">EDIT</a>
+            <form method="POST"  action="/urls/<%=key%>/delete" >
               <button class="btn btn-primary" type='submit'>DELETE</button>
             </form>
           </li>
-      <% }); %>
+      <% }; %>
     </ul>
 </body>
 </html>
