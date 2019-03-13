@@ -54,7 +54,7 @@ app.post("/register", (req, res) => {
   let id = generateRandomString();
   let email = req.body.email;
   let password = req.body.password;
-  if (email === '' || password === '') {
+  if (email === '' || password === '' || findIdFromEmail(email)) {
     res.sendStatus(400);
   } else {
     users[id] = {id: id, email: email, password: password};
@@ -110,7 +110,7 @@ app.post("/login", (req, res) => {
     res.cookie("user_id", user_id);
     res.redirect('/urls');
   } else {
-    res.redirect('/login');
+    res.sendStatus(403);
   }
 });
 
