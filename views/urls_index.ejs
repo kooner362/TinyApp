@@ -19,6 +19,7 @@
             <form method="POST"  action="/urls/<%=key%>/delete" >
               <button class="btn btn-primary" type='submit'>DELETE</button>
             </form>
+            <p>Date created: <%= urls[key].date %></p>
           </li>
       <% }; %>
     </ul>

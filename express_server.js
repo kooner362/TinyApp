@@ -15,42 +15,44 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "26bUxy" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "8ByHde" }
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "26bUxy", date: "2018 / 12 / 10" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "8ByHde", date: "2019 / 01 / 12" }
 };
 
 const users = {
   "26bUxy": {
     id: "26bUxy",
     email: "bob@example.com",
-    password: "purple"
+    password: bcrypt.hashSync("purple", 10)
   },
  "8ByHde": {
     id: "8ByHde",
     email: "kevin@example.com",
-    password: "funk"
+    password: bcrypt.hashSync("funk", 10)
   }
 }
 
 app.get("/register", (req, res) => {
   let user = req.session.user_id;
   if (user !== undefined) {
-    let templateVars = {user: user};
-    res.render('urls_register', templateVars);
+    res.redirect('/urls');
   } else {
     res.render('urls_register', {user: null});
   }
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  let longURL = urlDatabase[req.params.shortURL] && urlDatabase[req.params.shortURL].longURL;
+  if (longURL !== undefined) {
+    res.redirect(longURL);
+  } else {
+    res.sendStatus(403);
+  }
 });
 
 app.get("/urls/", (req, res) => {
   let user_id = req.session.user_id;
   let user_urls = urlsForUser(user_id);
-
   if (isLoggedIn(user_id)) {
     let user = users[user_id];
     let thisUserDataBase = {};
@@ -79,7 +81,12 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render('urls_login', {message: null, user: null});
+  let user_id = req.session.user_id;
+  if (user_id) {
+    res.redirect('/urls');
+  } else {
+    res.render('urls_login', {message: null, user: null});
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -87,17 +94,20 @@ app.get("/urls/:shortURL", (req, res) => {
   let user_urls = urlsForUser(user_id);
   let shortURL = req.params.shortURL;
 
-  if (isLoggedIn(user_id) && user_urls.indexOf(shortURL) !== -1) {
+  if (isLoggedIn(user_id) && user_urls.indexOf(shortURL) !== -1 && validURL(shortURL)) {
     let user = users[user_id];
     let templateVars = {message: null, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user: user};
     res.render("urls_show", templateVars);
   }
-  else if (isLoggedIn(user_id)) {
+  else if (isLoggedIn(user_id) && validURL(shortURL)) {
     let user = users[user_id];
-    let templateVars = {message:"This shortURL doesn't belong to you!", shortURL: shortURL,longURL: urlDatabase[shortURL].longURL, user: user};
+    let templateVars = {message:"This shortURL doesn't belong to you!", user: user};
     res.render("urls_show", templateVars);
-  } else {
+  }
+  else if (!isLoggedIn(user_id)){
     res.render('urls_login', {message: "Please Login or Register!", user: null});
+  } else {
+    res.sendStatus(403);
   }
 });
 
@@ -107,8 +117,9 @@ app.post("/urls/:shortURL", (req, res) => {
   let user_id = req.session.user_id;
   let urls = urlsForUser(user_id);
   if (urls.indexOf(shortURL) !== -1) {
-    urlDatabase[shortURL] = {'longURL': longURL, userID: user_id};
-    res.redirect('/urls/' + shortURL);
+    let oldDate = urlDatabase[shortURL].date;
+    urlDatabase[shortURL] = {longURL: longURL, userID: user_id, date: oldDate};
+    res.redirect('/urls/');
   } else {
     res.redirect('/urls/' + shortURL);
   }
@@ -118,7 +129,7 @@ app.post("/login", (req, res) => {
   let email = req.body.email;
   let password =  req.body.password;
   let user_id = findIdFromEmail(email);
-  let pass_verified = bcrypt.compareSync(password, users[user_id].password);
+  let pass_verified = email && password && bcrypt.compareSync(password, users[user_id].password);
   if (user_id && pass_verified) {
     req.session.user_id = user_id;
     res.redirect('/urls');
@@ -150,7 +161,7 @@ app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let user_id = req.session.user_id;
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id};
+  urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id, 'date': createDate()};
   res.redirect('/urls/' + shortURL);
 });
 
@@ -218,6 +229,23 @@ function urlsForUser(id) {
     }
   }
   return user_urls;
+}
+
+function validURL(id) {
+  for (let shortURL in urlDatabase) {
+    if (id === shortURL) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function createDate () {
+  let currDate = new Date();
+  let year = currDate.getFullYear();
+  let month = currDate.getMonth() + 1;
+  let day = currDate.getDate();
+  return `${year} / ${month} / ${day}`;
 }
 
 app.listen(PORT, () => {
