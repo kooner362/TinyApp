@@ -5,7 +5,10 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieSession());
+app.use(cookieSession({
+  name: 'tinyApp',
+  keys: ['helloImAky', '2ndK3y']
+}));
 
 const PORT = 8080;
 
