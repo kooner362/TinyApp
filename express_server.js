@@ -53,7 +53,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get("/urls/", (req, res) => {
   let user_id = req.session.user_id;
   let user_urls = urlsForUser(user_id);
-  if (validUser(user_id)) {
+  if (user_id) {
     let user = users[user_id];
     let thisUserDataBase = {};
     if (user_urls.length > 0) {
@@ -71,7 +71,7 @@ app.get("/urls/", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   let user_id = req.session.user_id;
-  if (validUser(user_id)) {
+  if (user_id) {
     let user = users[user_id];
     let templateVars = {user: user};
     res.render("urls_new", templateVars);
@@ -94,17 +94,17 @@ app.get("/urls/:shortURL", (req, res) => {
   let user_urls = urlsForUser(user_id);
   let shortURL = req.params.shortURL;
 
-  if (validUser(user_id) && user_urls.indexOf(shortURL) !== -1 && validURL(shortURL)) {
+  if (user_id && user_urls.indexOf(shortURL) !== -1 && validURL(shortURL)) {
     let user = users[user_id];
     let templateVars = {message: null, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user: user};
     res.render("urls_show", templateVars);
   }
-  else if (validUser(user_id) && validURL(shortURL)) {
+  else if (user_id && validURL(shortURL)) {
     let user = users[user_id];
     let templateVars = {message:"This shortURL doesn't belong to you!", user: user};
     res.render("urls_show", templateVars);
   }
-  else if (!validUser(user_id)){
+  else if (!user_id){
     res.render('urls_login', {message: "Please Login or Register!", user: null});
   } else {
     res.sendStatus(403);
@@ -206,6 +206,7 @@ function generateRandomString() {
   return shortURL;
 }
 
+//Returns id of user from email
 function findIdFromEmail(email) {
   for (let id in users) {
     if (users[id].email === email) {
@@ -231,16 +232,6 @@ function urlsForUser(id) {
     }
   }
   return user_urls;
-}
-
-//Check if shortURL is valid
-function validURL(id) {
-  for (let shortURL in urlDatabase) {
-    if (id === shortURL) {
-      return true;
-    }
-  }
-  return false;
 }
 
 //Creates a new date and returns a formatted string of current date.
