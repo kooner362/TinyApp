@@ -10,7 +10,11 @@
 
 <body style="font-size:20px; padding:50px;">
     <!-- Add EJS code here -->
+    <% if (message) { %>
+      <h2 style="color:red;"><%=message%></h2>
+    <%}%>
     <% include partials/_header %>
+
     <h2>Login</h2>
     <form method="POST" action="/login">
       <label for="email">Email:</label>

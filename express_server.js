@@ -11,8 +11,8 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "26bUxy" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "8ByHde" }
 };
 
 const users = {
@@ -45,9 +45,22 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/urls/", (req, res) => {
   let user_id = req.cookies["user_id"];
-  let user = users[user_id];
-  let templateVars = { urls: urlDatabase , user: user};
-  res.render("urls_index", templateVars);
+  let user_urls = urlsForUser(user_id);
+
+  if (isLoggedIn(user_id)) {
+    let user = users[user_id];
+    let thisUserDataBase = {};
+    if (user_urls.length > 0) {
+      for (let url of user_urls) {
+        thisUserDataBase[url] = urlDatabase[url];
+      }
+    }
+    let templateVars = { urls: thisUserDataBase, user: user};
+    res.render("urls_index", templateVars);
+  } else {
+    let templateVars = { message: "Please Login or Register!" , user: null};
+    res.render('urls_login', templateVars);
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -62,16 +75,26 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render('urls_login', {user: null});
+  res.render('urls_login', {message: null, user: null});
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   let user_id = req.cookies["user_id"];
-  let user = users[user_id];
-  let templateVars = {shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user: user};
-  res.render("urls_show", templateVars);
+  let user_urls = urlsForUser(user_id);
+  let shortURL = req.params.shortURL;
+
+  if (isLoggedIn(user_id) && user_urls.indexOf(shortURL) !== -1) {
+    let user = users[user_id];
+    let templateVars = {message: null, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user: user};
+    res.render("urls_show", templateVars);
+  }
+  else if (isLoggedIn(user_id)) {
+    let user = users[user_id];
+    let templateVars = {message:"This shortURL doesn't belong to you!", shortURL: shortURL,longURL: urlDatabase[shortURL].longURL, user: user};
+    res.render("urls_show", templateVars);
+  } else {
+    res.render('urls_login', {message: "Please Login or Register!", user: null});
+  }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -96,7 +119,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect('/urls/');
+  res.redirect('/login/');
 });
 
 app.post("/register", (req, res) => {
@@ -167,6 +190,16 @@ function isLoggedIn (user_id) {
     return false;
   }
   return true;
+}
+
+function urlsForUser(id) {
+  let user_urls = [];
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      user_urls.push(key);
+    }
+  }
+  return user_urls;
 }
 
 app.listen(PORT, () => {
