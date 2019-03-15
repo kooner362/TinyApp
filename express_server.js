@@ -15,8 +15,8 @@ const PORT = 8080;
 app.set("view engine", "ejs");
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "26bUxy", date: "2018 / 12 / 10" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "8ByHde", date: "2019 / 01 / 12" }
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "26bUxy", date: "2018 / 12 / 10", numVisits: 0, uniqueVisits: [] },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "8ByHde", date: "2019 / 01 / 12", numVisits: 0, uniqueVisits: []}
 };
 
 const users = {
@@ -51,8 +51,21 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  let longURL = urlDatabase[req.params.shortURL] && urlDatabase[req.params.shortURL].longURL;
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
   if (longURL !== undefined) {
+    let id = req.session.user_id;
+    if (!id) {
+      if (!req.session.temp_id) {
+        req.session.temp_id = generateRandomString();
+      }
+      id = req.session.temp_id;
+    }
+    urlDatabase[shortURL].numVisits += 1;
+    let uniqueVisitsArr = urlDatabase[shortURL].uniqueVisits;
+    if (uniqueVisitsArr.indexOf(id) === -1) {
+      urlDatabase[shortURL].uniqueVisits.push(id);
+    }
     res.redirect(longURL);
   } else {
     res.sendStatus(403);
@@ -125,7 +138,10 @@ app.post("/urls/:shortURL", (req, res) => {
   let urls = urlsForUser(user_id);
   if (urls.indexOf(shortURL) !== -1) {
     let oldDate = urlDatabase[shortURL].date;
-    urlDatabase[shortURL] = {longURL: longURL, userID: user_id, date: oldDate};
+    let oldVisits = urlDatabase[shortURL].numVisits;
+    let oldUniqueVisits = urlDatabase[shortURL].uniqueVisits;
+    urlDatabase[shortURL] = {longURL: longURL, userID: user_id, date: oldDate,
+      numVisits: oldVisits, uniqueVisits: oldUniqueVisits};
     res.redirect('/urls/');
   } else {
     res.redirect('/urls/' + shortURL);
@@ -169,7 +185,8 @@ app.post("/urls", (req, res) => {
   let user_id = req.session.user_id;
   let shortURL = generateRandomString();
   if (user_id) {
-    urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id, 'date': createDate()};
+    urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id,
+    'date': createDate(), numVisits: 0, uniqueVisits: []};
     res.redirect('/urls/' + shortURL);
   } else {
     res.sendStatus(403);
