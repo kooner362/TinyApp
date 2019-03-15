@@ -14,10 +14,10 @@
     <ul>
       <% for (var key in urls) { %>
           <li>
-            <b><%= key %></b>: <%= urls[key].longURL %>
-            <a href="/urls/<%= key %>">EDIT</a>
             <form method="POST"  action="/urls/<%=key%>/delete" >
-              <button class="btn btn-primary" type='submit'>DELETE</button>
+              <b><%= key %></b>: <%= urls[key].longURL %>
+              <a href="/urls/<%= key %>">EDIT</a>
+              <button class="btn btn-danger" type='submit'>DELETE</button>
             </form>
             <p>Date created: <%= urls[key].date %></p>
           </li>
