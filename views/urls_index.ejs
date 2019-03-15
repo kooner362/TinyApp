@@ -21,6 +21,8 @@
               <button class="btn btn-danger" type='submit'>DELETE</button>
             </form>
             <p>Date created: <%= urls[key].date %></p>
+            <p>Times Visited: <%= urls[key].numVisits %></p>
+            <p>Unique Visitors: <%= urls[key].uniqueVisits.length %></p>
           </li>
       <% }; %>
     </ul>
