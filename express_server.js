@@ -251,5 +251,5 @@ function createDate () {
 }
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyURL app listening on port ${PORT}!`);
 });
