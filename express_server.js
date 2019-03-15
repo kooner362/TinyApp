@@ -32,6 +32,15 @@ const users = {
   }
 }
 
+app.get("/", (req, res) => {
+  let user = req.session.user_id;
+  if (user) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
+});
+
 app.get("/register", (req, res) => {
   let user = req.session.user_id;
   if (user !== undefined) {
