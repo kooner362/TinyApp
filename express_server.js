@@ -215,14 +215,6 @@ function findIdFromEmail(email) {
   }
 }
 
-//Checks to see if user is a valid user
-function validUser (user_id) {
-  if (users[user_id] === undefined) {
-    return false;
-  }
-  return true;
-}
-
 //Returns a list of all shortURLs from user
 function urlsForUser(id) {
   let user_urls = [];
@@ -232,6 +224,16 @@ function urlsForUser(id) {
     }
   }
   return user_urls;
+}
+
+//Check if shortURL is valid
+function validURL(id) {
+  for (let shortURL in urlDatabase) {
+    if (id === shortURL) {
+      return true;
+    }
+  }
+  return false;
 }
 
 //Creates a new date and returns a formatted string of current date.
