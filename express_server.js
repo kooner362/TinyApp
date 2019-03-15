@@ -54,6 +54,8 @@ app.get("/u/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
   if (longURL !== undefined) {
+    //Checks whether user is logged in if not then it will create a temp_id
+    //Makes sure that if a temp_id is assigned it is not overwritten
     let id = req.session.user_id;
     if (!id) {
       if (!req.session.temp_id) {
