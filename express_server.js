@@ -30,7 +30,7 @@ const users = {
     email: "kevin@example.com",
     password: bcrypt.hashSync("funk", 10)
   }
-}
+};
 
 app.get("/", (req, res) => {
   let user = req.session.user_id;
@@ -107,13 +107,11 @@ app.get("/urls/:shortURL", (req, res) => {
     let user = users[user_id];
     let templateVars = {message: null, shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user: user};
     res.render("urls_show", templateVars);
-  }
-  else if (user_id && validURL(shortURL)) {
+  } else if (user_id && validURL(shortURL)) {
     let user = users[user_id];
     let templateVars = {message:"This shortURL doesn't belong to you!", user: user};
     res.render("urls_show", templateVars);
-  }
-  else if (!user_id){
+  } else if (!user_id){
     res.render('urls_login', {message: "Please Login or Register!", user: null});
   } else {
     res.sendStatus(403);
@@ -202,8 +200,7 @@ function generateRandomString() {
       let randLetter = String.fromCharCode(97 + randIntLetter);
       shortURL += randLetter;
       randInt = Math.floor((Math.random() * 99) + 1);
-    }
-    else if (randInt >= 30 && randInt < 60) {
+    } else if (randInt >= 30 && randInt < 60) {
       //adds a number between 0 and 9
       let randNum = Math.floor(Math.random() * 10);
       shortURL += randNum;
