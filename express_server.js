@@ -129,7 +129,7 @@ app.post("/login", (req, res) => {
   let email = req.body.email;
   let password =  req.body.password;
   let user_id = findIdFromEmail(email);
-  let pass_verified = email && password && bcrypt.compareSync(password, users[user_id].password);
+  let pass_verified = user_id && password && bcrypt.compareSync(password, users[user_id].password);
   if (user_id && pass_verified) {
     req.session.user_id = user_id;
     res.redirect('/urls');
