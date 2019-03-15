@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'tinyApp',
-  keys: ['helloImAky', '2ndK3y']
+  keys: ['helloImAk3y', '2ndK3y']
 }));
 
 const PORT = 8080;
