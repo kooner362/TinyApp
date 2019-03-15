@@ -161,8 +161,13 @@ app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let user_id = req.session.user_id;
   let shortURL = generateRandomString();
-  urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id, 'date': createDate()};
-  res.redirect('/urls/' + shortURL);
+  if (user_id) {
+    urlDatabase[shortURL] = {'longURL': longURL, 'userID': user_id, 'date': createDate()};
+    res.redirect('/urls/' + shortURL);
+  } else {
+    res.sendStatus(403);
+  }
+
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
